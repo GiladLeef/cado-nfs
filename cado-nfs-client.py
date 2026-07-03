@@ -951,8 +951,8 @@ class WorkunitProcessor(object):
                 # exception is ignored as some output files may be missing due
                 # to the error. An empty file is sent instead.
                 if self.errorcode:
-                    logging.warn(f"{filepath} is missing (because the command "
-                                  "failed ?), skipping the file.")
+                    logging.warning(f"{filepath} is missing (because the "
+                                    "command failed ?), skipping the file.")
                 else:
                     raise  # output file should exist in this case
 

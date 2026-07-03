@@ -4800,11 +4800,11 @@ class PurgeTask(Task):
             if self.keep is not None:
                 keep = max(self.keep, keep)
                 if keep > self.keep:
-                    self.logger.warn("Increasing keep from %d to %d because "
-                                     "tasks.nmatrices is %d",
-                                     self.keep,
-                                     keep,
-                                     self.params['nmatrices'])
+                    self.logger.warning("Increasing keep from %d to %d because"
+                                        " tasks.nmatrices is %d",
+                                        self.keep,
+                                        keep,
+                                        self.params['nmatrices'])
         else:
             relsdelfile = None
             keep = self.keep
@@ -5742,8 +5742,8 @@ class LinAlgClTask(ClientServerTask, HasStatistics):
                 if (match := re.match(regex, line)) is not None:
                     self.parse_stats(filename, commit=commit)
                     if match.group(1) == "inconclusive":
-                        self.logger.warn(f"Skipping prime {ell}, could not "
-                                         "compute the determinant")
+                        self.logger.warning(f"Skipping prime {ell}, could not "
+                                            "compute the determinant")
                         return True
                     detell = int(match.group(1)) % ell
                     new_det, new_M = CRT(det, M, detell, ell, signed=True)

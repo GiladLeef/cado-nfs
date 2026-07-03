@@ -1121,8 +1121,8 @@ class Cado_NFS_toplevel(object):
         # Argument --server kills all slaves.* arguments
         if self.args.server:
             for p in self.parameters.find(["slaves"], ""):
-                self.logger.warn("server mode,"
-                                 " ignoring " + ".".join(p[0]+[p[1]]))
+                self.logger.warning("server mode,"
+                                    " ignoring " + ".".join(p[0]+[p[1]]))
                 # actually delete them! Yeah, it's ugly.
                 self.parameters.data.pop("slaves", None)
             return
