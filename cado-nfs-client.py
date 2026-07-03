@@ -940,21 +940,15 @@ class WorkunitProcessor(object):
             if not f.get('upload'):
                 continue
             filepath = os.path.join(self.settings["WORKDIR"], f['filename'])
+            if self.errorcode:
+                logging.info(f"Skipping file {filepath} [{fid=}] because the "
+                             "command failed")
+                continue
+
             logging.info("Attaching file %s [fid=%s] to upload", filepath, fid)
             basename = os.path.split(filepath)[1]
-            try:
-                files[basename] = open(filepath, 'rb')
-                fileinfo[basename] = dict(WUid=self.workunit.get_id(),
-                                          key=fid)
-            except FileNotFoundError:
-                # If the output file is missing and the command failed, the
-                # exception is ignored as some output files may be missing due
-                # to the error. An empty file is sent instead.
-                if self.errorcode:
-                    logging.warning(f"{filepath} is missing (because the "
-                                    "command failed ?), skipping the file.")
-                else:
-                    raise  # output file should exist in this case
+            files[basename] = open(filepath, 'rb')
+            fileinfo[basename] = dict(WUid=self.workunit.get_id(), key=fid)
 
         for name, blobs in self.stdio.items():
             for (counter, blob) in enumerate(blobs):
