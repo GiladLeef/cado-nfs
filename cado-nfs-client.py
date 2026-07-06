@@ -930,7 +930,7 @@ class WorkunitProcessor(object):
                     clientid=self.settings["CLIENTID"])
         if self.errorcode:
             data["errorcode"] = self.errorcode
-        if self.failedcommand:
+        if self.failedcommand is not None:
             data["failedcommand"] = self.failedcommand
 
         files = {}
@@ -940,11 +940,15 @@ class WorkunitProcessor(object):
             if not f.get('upload'):
                 continue
             filepath = os.path.join(self.settings["WORKDIR"], f['filename'])
+            if self.errorcode:
+                logging.info(f"Skipping file {filepath} [{fid=}] because the "
+                             "command failed")
+                continue
+
             logging.info("Attaching file %s [fid=%s] to upload", filepath, fid)
             basename = os.path.split(filepath)[1]
             files[basename] = open(filepath, 'rb')
-            fileinfo[basename] = dict(WUid=self.workunit.get_id(),
-                                      key=fid)
+            fileinfo[basename] = dict(WUid=self.workunit.get_id(), key=fid)
 
         for name, blobs in self.stdio.items():
             for (counter, blob) in enumerate(blobs):
