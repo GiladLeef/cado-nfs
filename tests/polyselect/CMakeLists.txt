@@ -178,7 +178,9 @@ cado_define_test(test_sopt PROGRAM
     NO_DEFAULT_RUN
     SHA1_ON_REGEXP_LINES "^[^#]"
     TARGET_DEPENDENCIES sopt
-    TIMEOUT 40
+    # for some reason, sopt can easily take a long time. I don't
+    # understand why (it's well under 2 seconds on my laptop)
+    TIMEOUT 60
 )
 
 cado_divert_test(test_sopt 1
