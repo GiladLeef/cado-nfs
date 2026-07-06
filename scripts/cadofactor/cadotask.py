@@ -791,7 +791,13 @@ class Statistics(object):
         assert len(means) == len(samples)
         total_samples = sum(samples)
         weighted_sum = sum(Statistics.weigh(means, samples))
-        return [weighted_sum / total_samples, total_samples]
+        if total_samples:
+            return [weighted_sum / total_samples, total_samples]
+        else:
+            # No samples (can occur, see #30136).
+            # The weighted_sum has no meaning here, one could return 0 instead
+            # but it is used to be sure to return the correct type.
+            return [weighted_sum, 0]
 
     def zip_combine_mean(*lists):
         """
