@@ -6,39 +6,35 @@
 # See parameters/cl/params.qs.d90 and parameters/factor/params.qs.c90 for
 # examples which contains some documentation specific to the QS algorithm.
 
-# This parameter file is only here to allow tests on small input. It may
-# not be optimal but it is fast enough so the tests do not run for too
-# long
-
 ###########################################################################
 # General parameters
 ###########################################################################
 
-name = c40
+name = c70
 
 ###########################################################################
 # Sieve
 ###########################################################################
 
-tasks.I = 13
-tasks.lim0 = 7500
-tasks.lpb0 = 15
-tasks.sieve.mfb0 = 30
+tasks.I = 15
+tasks.lim0 = 150000
+tasks.lpb0 = 21
+tasks.sieve.mfb0 = 42
 
-tasks.sieve.qfac_nfac = 6
-tasks.sieve.qfac_min = 900
-tasks.sieve.qfac_max = 1200
+tasks.sieve.qfac_nfac = 10
+tasks.sieve.qfac_min = 950
+tasks.sieve.qfac_max = 1250
 tasks.sieve.qrange = 100
 
-tasks.sieve.ncurves0 = 2
+tasks.sieve.ncurves0 = 5
 
-tasks.sieve.rels_wanted=2500
+tasks.sieve.rels_wanted = 45000
 
 ###########################################################################
 # Filtering
 ###########################################################################
 
-tasks.filter.purge.keep = 32
+tasks.filter.purge.keep = 128
 tasks.filter.target_density = 170.0
 
 ###########################################################################
@@ -48,13 +44,6 @@ tasks.filter.target_density = 170.0
 tasks.linalg.bwc.interleaving = 0
 tasks.linalg.m = 64
 tasks.linalg.n = 64
-
-# Force prep to choose a permutation on columns. Otherwise the choise
-# between rows and columns is made based on the largest deviation of
-# weights. For large matrices from NFS or QS, it is always the columns that
-# have the largest deviation of weights. For small matrices, it may not be
-# the case, and prep aborts.
-tasks.linalg.bwc.balancing_options=reorder=columns
 
 ###########################################################################
 # Characters

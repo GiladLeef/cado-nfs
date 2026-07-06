@@ -667,8 +667,13 @@ misc/factor.hpp
 misc/indexed_relations_to_density.cpp
 misc/smooth_detect.cpp
 misc/smooth_detect.hpp
+parameters/cl/params.qs.d100
+parameters/cl/params.qs.d100.Kleinjung
 parameters/cl/params.qs.d20
 parameters/cl/params.qs.d60
+parameters/cl/params.qs.d70
+parameters/cl/params.qs.d80
+parameters/cl/params.qs.d90
 parameters/dlp/Joux-Lercier/params.p100
 parameters/dlp/Joux-Lercier/params.p30
 parameters/dlp/Joux-Lercier/params.p35
@@ -770,11 +775,14 @@ parameters/factor/params.c90
 parameters/factor/params.c95
 parameters/factor/params.qs.c40
 parameters/factor/params.qs.c60
+parameters/factor/params.qs.c70
 parameters/factor/params.qs.c80
+parameters/factor/params.qs.c90
 parameters/misc/cpubinding.conf
 parameters/polynomials/F9.poly
 polyselect/CMakeLists.txt
 polyselect/Makefile
+polyselect/alpha.cpp
 polyselect/area.cpp
 polyselect/area.hpp
 polyselect/auxiliary.cpp
@@ -1102,6 +1110,7 @@ sieve/las-threads.hpp
 sieve/las-todo-list.cpp
 sieve/las-todo-list.hpp
 sieve/las-trialdiv.cpp
+sieve/las-unsieve-avx2.cpp
 sieve/las-unsieve-sse2.cpp
 sieve/las-unsieve.cpp
 sieve/las-unsieve.hpp

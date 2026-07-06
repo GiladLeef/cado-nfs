@@ -40,6 +40,7 @@ siqs_ssp_pdata_t::siqs_ssp_pdata_t(
         siqs_special_q_data const & Q)
     : p(e.q)
     , pmask((p & 1u) ? std::numeric_limits<fbprime_t>::max() : (p-1U))
+    , crt_data_modp(Q.crt_data_modq.size())
     , offset(((uint64_t (p-1u)) << LOG_BUCKET_REGION) % p)
 {
     /* call to e.compute_crt_data_modp sets invq and crt_data_modp */
@@ -284,13 +285,13 @@ siqs_small_sieve_data::small_sieve_prepare_many_start_positions(
         }
     }
 
-#ifndef NDEBUG
+#ifdef WANT_ASSERT_EXPENSIVE
     for(unsigned int k = 0; k < nregions + regions_per_line; k++) {
-        ASSERT(res[k].size() == ssps.size());
+        ASSERT_EXPENSIVE(res[k].size() == ssps.size());
         int N = first_region_index + k;
         siqs_small_sieve_base Ct(logI, N);
         for(size_t s = 0 ; s < ssps.size(); ++s) {
-            ASSERT(res[k][s] == Ct.first_position_in_region(ssps[s]));
+            ASSERT_EXPENSIVE(res[k][s] == Ct.first_position_in_region(ssps[s]));
         }
     }
 #endif

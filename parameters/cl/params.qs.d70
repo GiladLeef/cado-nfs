@@ -3,50 +3,42 @@
 ###########################################################################
 # See parameters/factor/params.c90 for an example which contains some
 # documentation.
-# See parameters/cl/params.qs.d90 and parameters/factor/params.qs.c90 for
-# examples which contains some documentation specific to the QS algorithm.
+# See parameters/cl/params.qs.d90 for an example which contains some
+# documentation specific to the QS algorithm for class groups computation.
 
 ###########################################################################
 # General parameters
 ###########################################################################
 
-name = c80
+name = d70
 
 ###########################################################################
 # Sieve
 ###########################################################################
 
-tasks.I = 12
+tasks.I = 14
 tasks.lim0 = 100000
-tasks.lpb0 = 19
-tasks.sieve.mfb0 = 38
+tasks.lpb0 = 21
+tasks.sieve.mfb0 = 42
 
-tasks.sieve.qfac_nfac = 12
-tasks.sieve.qfac_min = 1024
-tasks.sieve.qfac_max = 2048
+tasks.sieve.qfac_nfac = 10
+tasks.sieve.qfac_min = 950
+tasks.sieve.qfac_max = 1250
 tasks.sieve.qrange = 100
 
-tasks.sieve.ncurves0 = 2
+tasks.sieve.ncurves0 = 5
 
-tasks.sieve.rels_wanted = 19000
+tasks.sieve.rels_wanted = 100000
 
 ###########################################################################
 # Filtering
 ###########################################################################
 
-tasks.filter.purge.keep = 128
 tasks.filter.target_density = 170.0
+tasks.nmatrices = 2
 
 ###########################################################################
-# Linear algebra
+# Linalg
 ###########################################################################
 
-tasks.linalg.bwc.interleaving = 0
-tasks.linalg.m = 64
-tasks.linalg.n = 64
-
-###########################################################################
-# Characters
-###########################################################################
-
-tasks.linalg.characters.nchar = 1
+tasks.linalg.moduli_nbits = 256
