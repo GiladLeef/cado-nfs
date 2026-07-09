@@ -82,10 +82,13 @@ class DescentMiddleClass(object):
         print("\tlim0=%d" % values_lim0.pop())
         print("\tlim1=%d" % values_lim1.pop())
 
-    def do_descent(self, todofile):
+    def do_descent(self, todofile, seed=None):
         # tmpdir = self.general.tmpdir()
         prefix = f"{self.general.prefix()}.descent." \
                  f"{self.general.short_target()}.middle."
+        if seed is not None:
+            prefix = f"{self.general.prefix()}.descent." \
+                     f"{self.general.short_target()}.{seed}.middle."
 
         f = open(todofile, 'r')
         ntodo = len(list(f))

@@ -41,9 +41,9 @@ class DescentLowerClass(object):
 
         # Read descent relations
         descrels = []
-        for rfile in relsfile:
-            with open(rfile, 'r') as file:
-                with open(relsforSM, 'a') as fileSM:
+        with open(relsforSM, 'w') as fileSM:
+            for rfile in relsfile:
+                with open(rfile, 'r') as file:
                     for line in file:
                         foo = re.match(r"^Taken: (-?\d+),(-?\d+):", line)
                         if foo:
@@ -163,11 +163,11 @@ class DescentLowerClass(object):
             print("log(2)=%d" % logDB.get_log(2, -1, 0))
             print("log(3)=%d" % logDB.get_log(3, -1, 0))
             print("# target=%s" % self.args.target)
-            print("log(target)=%d" % log_target)
             check_result(2,
                          logDB.get_log(2, -1, 0),
                          int(self.args.target),
                          log_target, p, ell)
+            print("log(target)=%d" % log_target)
         else:
             # No rational side; more complicated.
             # We need to compute the SMs for U and V.

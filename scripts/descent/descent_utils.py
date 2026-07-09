@@ -9,6 +9,10 @@ class FailedDescent(Exception):
         return "Failed descents for: " + ", ".join(self.failed)
 
 
+class InconsistentDescent(Exception):
+    pass
+
+
 class Singleton(type):
     _instances = {}
 
@@ -39,9 +43,12 @@ def feature_get_hwloc():
 
 
 def check_result(two, log2, z, logz, p, ell):
-    assert (p - 1) % ell == 0
+    if (p - 1) % ell != 0:
+        raise InconsistentDescent("ell does not divide p-1")
     h = ((p - 1) // ell)
-    assert pow(z, log2 * h, p) == pow(2, logz * h, p)
+    if pow(z, log2 * h, p) != pow(two, logz * h, p):
+        raise InconsistentDescent(
+            "computed logarithm does not pass the final consistency check")
     print("Final consistency check ok!")
 
 

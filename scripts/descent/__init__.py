@@ -8,7 +8,8 @@ from .general_class import GeneralClass
 from .descent_upper_class import DescentUpperClass
 from .descent_middle_class import DescentMiddleClass
 from .descent_lower_class import DescentLowerClass
-from .descent_utils import drive_me_crazy, feature_set_hwloc, FailedDescent
+from .descent_utils import drive_me_crazy, feature_set_hwloc
+from .descent_utils import FailedDescent, InconsistentDescent
 
 
 def descent_main():
@@ -56,12 +57,30 @@ def descent_main():
         middle = DescentMiddleClass(general, args)
         lower = DescentLowerClass(general, args)
 
-        todofile, initial_split, firstrelsfile = \
-            init.do_descent(general.target())
-        relsfile = middle.do_descent(todofile)
-        if firstrelsfile:
-            lower.do_descent([firstrelsfile, relsfile], initial_split)
+        if general.has_rational_side() and init.external is None:
+            seed = 42
+            while True:
+                try:
+                    todofile, initial_split, firstrelsfile, _ = \
+                        init.do_descent_for_real(general.target(), seed)
+                    if todofile is None:
+                        seed += 1
+                        continue
+                    relsfile = middle.do_descent(todofile, seed)
+                    lower.do_descent([relsfile], initial_split)
+                    break
+                except (FailedDescent, InconsistentDescent) as e:
+                    print("Descent attempt with seed %d failed: %s"
+                          % (seed, e))
+                    print("Trying again with another random seed...")
+                    seed += 1
         else:
-            lower.do_descent([relsfile], initial_split)
+            todofile, initial_split, firstrelsfile = \
+                init.do_descent(general.target())
+            relsfile = middle.do_descent(todofile)
+            if firstrelsfile:
+                lower.do_descent([firstrelsfile, relsfile], initial_split)
+            else:
+                lower.do_descent([relsfile], initial_split)
 
     general.cleanup()
