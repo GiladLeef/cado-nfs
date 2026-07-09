@@ -266,6 +266,8 @@ class GeneralClass(object):
 
     # short name for the target, to be used in filenames
     def short_target(self):
+        if self.args.target_name:
+            return self.args.target_name
         target = str(self.args.target)
         if len(target) <= 20:
             return target

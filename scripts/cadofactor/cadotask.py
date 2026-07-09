@@ -2,6 +2,7 @@
 
 import re
 import os
+import concurrent.futures
 from math import gcd
 import abc
 import random
@@ -6523,12 +6524,101 @@ class DescentTask(Task):
         return self.join_params(super().paramnames,
                                 {"target": [str],
                                  "gfpext": [int, 1],
+                                 "threads": [int, 1],
                                  "execpath": str})
 
     def __init__(self, *, mediator, db, parameters, path_prefix):
         super().__init__(mediator=mediator, db=db, parameters=parameters,
                          path_prefix=path_prefix)
         self.logtargets = []
+
+    @staticmethod
+    def _parse_targets(targets):
+        return [int(ts) for ts in targets.split(",")]
+
+    @staticmethod
+    def _parse_logtarget(stdout):
+        for line in stdout.splitlines():
+            match = re.match(r'log\(target\)=(\d+)', line)
+            if match:
+                return int(match.group(1))
+        return None
+
+    def _make_descent_program(self, target, stdoutpath, stderrpath,
+                              target_name=None):
+        return cadoprograms.Descent(cadobindir=self.params["execpath"],
+                                    stdout=str(stdoutpath),
+                                    stderr=str(stderrpath),
+                                    target=target,
+                                    target_name=target_name,
+                                    **self.merged_args[0])
+
+    def _run_descent_process(self, index, target, p):
+        wuname = self.make_wuname("target%d" % index)
+        process = cadocommand.Command(p)
+        realtime_used = time.time()
+        (rc, stdout, stderr) = process.wait()
+        realtime_used = time.time() - realtime_used
+        message = Task.ResultInfo(wuname, rc, stdout, stderr, p,
+                                  p.make_command_line(), "server")
+        return index, target, message, realtime_used
+
+    def _handle_descent_result(self, target, message):
+        if message.get_exitcode(0) != 0:
+            self.log_failed_command_error(message, 0)
+            raise Exception("Program failed")
+
+        stdout = message.read_stdout(0).decode()
+        logtarget = self._parse_logtarget(stdout)
+        if logtarget is None:
+            return
+
+        self.logger.info("Descent yields log(%s)=%s"
+                         % (target, logtarget))
+        self.logtargets.append(logtarget)
+
+        checker = self.send_request(Request.GET_LOGQUERY_CHECKER)
+        checker.check_new_log(target, logtarget)
+
+    def _run_descent_targets_serial(self, targets):
+        for index, target in enumerate(targets):
+            self.logger.info("Now doing descent for target=%s" % target)
+
+            (stdoutpath, stderrpath) = self.make_std_paths(
+                cadoprograms.Descent.name)
+            p = self._make_descent_program(target, stdoutpath, stderrpath)
+            message = self.submit_command(p, None, log_errors=True)
+            self._handle_descent_result(target, message)
+
+    def _run_descent_targets_parallel(self, targets, workers):
+        self.logger.info("Doing %d descents using %d worker%s",
+                         len(targets), workers, "" if workers == 1 else "s")
+        jobs = []
+        for index, target in enumerate(targets):
+            self.logger.info("Now doing descent for target=%s" % target)
+            (stdoutpath, stderrpath) = self.make_std_paths(
+                cadoprograms.Descent.name)
+            p = self._make_descent_program(target, stdoutpath, stderrpath,
+                                           target_name="target%d" % index)
+            jobs.append((index, target, p))
+
+        results = [None] * len(jobs)
+        with concurrent.futures.ThreadPoolExecutor(
+                max_workers=workers) as executor:
+            future_to_index = {
+                executor.submit(self._run_descent_process, *job): job[0]
+                for job in jobs
+            }
+            for future in concurrent.futures.as_completed(future_to_index):
+                index = future_to_index[future]
+                results[index] = future.result()
+
+        realtime_used = sum(result[3] for result in results)
+        self.update_cpu_real_time(cadoprograms.Descent.name,
+                                  real=realtime_used)
+
+        for index, target, message, _realtime_used in results:
+            self._handle_descent_result(target, message)
 
     def run(self):
         super().run()
@@ -6538,34 +6628,12 @@ class DescentTask(Task):
                              " as no target= argument was passed")
             return
 
-        for ts in self.params["target"].split(","):
-            target = int(ts)
-
-            self.logger.info("Now doing descent for target=%s" % target)
-
-            (stdoutpath, stderrpath) = self.make_std_paths(
-                cadoprograms.Descent.name)
-            p = cadoprograms.Descent(cadobindir=self.params["execpath"],
-                                     stdout=str(stdoutpath),
-                                     stderr=str(stderrpath),
-                                     target=target,
-                                     **self.merged_args[0])
-            message = self.submit_command(p, None, log_errors=True)
-            if message.get_exitcode(0) != 0:
-                raise Exception("Program failed")
-
-            stdout = message.read_stdout(0).decode()
-            for line in stdout.splitlines():
-                match = re.match(r'log\(target\)=(\d+)', line)
-                if match:
-                    logtarget = int(match.group(1))
-                    self.logger.info("Descent yields log(%s)=%s"
-                                     % (target, logtarget))
-                    self.logtargets.append(logtarget)
-
-                    checker = self.send_request(Request.GET_LOGQUERY_CHECKER)
-                    checker.check_new_log(target, logtarget)
-                    break
+        targets = self._parse_targets(self.params["target"])
+        workers = max(1, min(int(self.params["threads"]), len(targets)))
+        if len(targets) == 1 or workers == 1:
+            self._run_descent_targets_serial(targets)
+        else:
+            self._run_descent_targets_parallel(targets, workers)
         return True
 
     def get_logtargets(self):

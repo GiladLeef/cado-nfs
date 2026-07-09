@@ -23,6 +23,9 @@ def descent_main():
                         help="Element whose DL is wanted",
                         type=str,
                         required=True)
+    parser.add_argument("--target-name",
+                        help=argparse.SUPPRESS,
+                        type=str)
     parser.add_argument("--timestamp",
                         help="Prefix all lines with a time stamp",
                         action="store_true")

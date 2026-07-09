@@ -1440,6 +1440,7 @@ class Descent(Program):
                  lim0: DashParameter(),
                  lim1: DashParameter(),
                  ell: DashParameter(),
+                 target_name: DashParameter() = None,
                  **kwargs):
         super().__init__(locals(), **kwargs)
 
