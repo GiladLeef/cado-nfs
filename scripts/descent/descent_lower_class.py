@@ -132,6 +132,8 @@ class DescentLowerClass(object):
             # Deduce the log of the target
             Num, Den, factNum, factDen = initial_split
             log_target = 0
+            if (Num < 0) != (Den < 0):
+                log_target += (general.p() - 1) // 2
             errors = []
             for p in factNum:
                 lp = logDB.get_log(p, -1, 0)
