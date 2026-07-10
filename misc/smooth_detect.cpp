@@ -140,15 +140,17 @@ purge(std::vector<descent_init_candidate>& P,
     auto w = P.begin();
 
     for (auto r = P.begin(); r != P.end(); ++r) {
+        if (static_cast<unsigned int>(w - P.begin()) == max_size)
+            break;
         if (!r->is_factored()
                 && !r->is_probably_not_smooth(lmax)
                 && r->maxlp() <= lmax)
         {
             std::swap(*r, *w++);
-            if ((w - P.begin()) > max_size)
-                break;
         }
     }
+    P.erase(w, P.end());
+    ASSERT(P.size() <= max_size);
 }
 
 static std::ostream&
