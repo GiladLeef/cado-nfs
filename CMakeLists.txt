@@ -125,7 +125,9 @@ endif()
 set(EXCLUDE_FROM_RELEASE_BUILD )
 
 set(package_basename ${CADO_DIST_ARCHIVE_NAME})
+set(BINSUFFIX bin CACHE STRING "subpath below PREFIX for storing the two main scripts")
 set(LIBSUFFIX lib/${package_basename} CACHE STRING "subpath below PREFIX for storing libraries and binaries")
+set(DATASUFFIX share/${package_basename} CACHE STRING "subpath below PREFIX for storing parameters")
 
 #####################################################################
 # Add the CFLAGS that are needed in all cases.
@@ -513,8 +515,15 @@ add_subdirectory (linalg)
 add_subdirectory (filter)
 add_subdirectory (linalg/bwc)
 add_subdirectory (misc)
+add_subdirectory (scripts)
 file(GENERATE OUTPUT source-location.txt CONTENT "${CADO_NFS_SOURCE_DIR}")
 
+install(DIRECTORY parameters/ DESTINATION ${DATASUFFIX})
+
+configure_file(cado-nfs.py cado-nfs.py ESCAPE_QUOTES @ONLY)
+configure_file(cado-nfs-client.py cado-nfs-client.py ESCAPE_QUOTES @ONLY)
+install(PROGRAMS ${CADO_NFS_BINARY_DIR}/cado-nfs.py DESTINATION ${BINSUFFIX})
+install(PROGRAMS ${CADO_NFS_BINARY_DIR}/cado-nfs-client.py DESTINATION ${BINSUFFIX})
+
 message(STATUS "Libraries and binaries will go to ${CMAKE_INSTALL_PREFIX}/${LIBSUFFIX}")
-
-
+message(STATUS "Data will go to ${CMAKE_INSTALL_PREFIX}/${DATASUFFIX}")
