@@ -138,7 +138,7 @@ target_link_libraries(mf_bal bwc_base m)
 install(TARGETS mf_bal RUNTIME DESTINATION ${LIBSUFFIX}/linalg/bwc)
 
 
-configure_file(bwc.pl ${CMAKE_CURRENT_BINARY_DIR}/bwc.pl ESCAPE_QUOTES @ONLY)
+
 
 add_executable(random_matrix ${EXCLUDE_FROM_RELEASE_BUILD}
     random_matrix.cpp)
@@ -446,15 +446,7 @@ bwc_program(blocklanczos blocklanczos.cpp blocklanczos_extraction.cpp)
 target_link_libraries(blocklanczos bitlinalg)
 target_link_libraries(blocklanczos bblas)
 
-# bwc_program_base is good for programs that we don't want to see when we
-# do "make install"
-bwc_program_base(bench_cpu_bwc bench_cpu_bwc.cpp)
-bwc_program_base(bench_comm_bwc bench_comm_bwc.cpp)
-set_target_properties(bench_cpu_bwc PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(bench_comm_bwc PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bwc.pl DESTINATION
-    ${LIBSUFFIX}/linalg/bwc)
 
 # Also lingen.
 
@@ -650,22 +642,5 @@ endif()
 
 add_custom_target(bwc_full)
 add_dependencies(bwc_full bwc_full_gf2 bwc_full_gfp)
-
-# Those are used only for tests.
-bwc_program_extra(build_matcache build_matcache.cpp)
-target_link_libraries(build_matcache bwc_base)
-bwc_program_extra(bench_matcache bench_matcache.cpp worker-threads.c)
-target_link_libraries(bench_matcache bwc_base)
-
-add_executable(bench_polmatmul EXCLUDE_FROM_ALL bench_polmatmul.cpp)
-set_property(SOURCE bench_polmatmul.cpp
-    APPEND PROPERTY COMPILE_DEFINITIONS GF2X_CANTOR_BASE_FIELD_SIZE=128)
-mark_targets_as_openmp(bench_polmatmul)
-
-if(NOT HAVE_GF2X)
-add_dependencies(bench_polmatmul gf2x-build)
-endif()
-target_link_libraries(bench_polmatmul utils gf2x)
-
 
 include(CMakeLists-nodist.txt OPTIONAL)

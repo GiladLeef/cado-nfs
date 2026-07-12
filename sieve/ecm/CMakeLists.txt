@@ -70,9 +70,6 @@ mark_targets_as_openmp(facul)
 
 target_link_libraries(facul utils ${gmp_libname})
 
-add_executable(testbench testbench.cpp)
-target_link_libraries(testbench facul utils)
-
 
 add_executable(finishbatch finishbatch.cpp
     $<TARGET_OBJECTS:las_core_0>

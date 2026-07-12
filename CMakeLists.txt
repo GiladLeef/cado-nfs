@@ -122,16 +122,10 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
 	SET(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -c <TARGET>")
 endif()
 
-if(EXISTS ${CADO_NFS_SOURCE_DIR}/files.dist)
-    set(EXCLUDE_FROM_RELEASE_BUILD )
-else()
-    set(EXCLUDE_FROM_RELEASE_BUILD EXCLUDE_FROM_ALL)
-endif()
+set(EXCLUDE_FROM_RELEASE_BUILD )
 
 set(package_basename ${CADO_DIST_ARCHIVE_NAME})
-set(BINSUFFIX bin CACHE STRING "subpath below PREFIX for storing the two main scripts")
 set(LIBSUFFIX lib/${package_basename} CACHE STRING "subpath below PREFIX for storing libraries and binaries")
-set(DATASUFFIX share/${package_basename} CACHE STRING "subpath below PREFIX for storing parameters")
 
 #####################################################################
 # Add the CFLAGS that are needed in all cases.
@@ -468,32 +462,6 @@ set(CMAKE_CXX_COMPILER "${CADO_NFS_BINARY_DIR}/cxxwrap.pl")
 set(CMAKE_C_LINKER_PREFERENCE "${CADO_NFS_BINARY_DIR}/cxxwrap.pl")
 set(CMAKE_CXX_LINKER_PREFERENCE "${CADO_NFS_BINARY_DIR}/cxxwrap.pl")
 
-if (NOT "$ENV{IWYU}" MATCHES "^(0|NO|no|OFF|off|)$")
-    message(STATUS "Enabling iwyu when compiling c++ code")
-    set(findprog_flags)
-    if(ENV{IWYU} MATCHES "/")
-        # If MPI contains a /, then we assume it should be a path
-        list(APPEND findprog_flags HINTS "$ENV{IWYU}" "$ENV{IWYU}/bin")
-    endif()
-    find_program(iwyu_path NAMES include-what-you-use iwyu ${findprog_flags})
-    if(iwyu_path)
-        message(STATUS "Enabling iwyu when compiling c++ code -- Success")
-        set(CMAKE_C_INCLUDE_WHAT_YOU_USE "${iwyu_path}")
-        set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${iwyu_path}")
-        if(NOT "$ENV{IWYU_FILTER}" MATCHES "^(0|NO|no|OFF|off|)$")
-            configure_file(config/iwyu.pl.in "${CADO_NFS_BINARY_DIR}/iwyu.pl")
-            set(CMAKE_C_INCLUDE_WHAT_YOU_USE "${CADO_NFS_BINARY_DIR}/iwyu.pl")
-            set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${CADO_NFS_BINARY_DIR}/iwyu.pl")
-        endif()
-        # oddly enough, the following does not work. (with or without a
-        # CMAKE_ prefix)
-        # set_property(GLOBAL PROPERTY CMAKE_C_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-        # set_property(GLOBAL PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-    else()
-        message(WARNING "Enabling iwyu when compiling c++ code -- Failed, no binary found")
-    endif()
-endif()
-
 message(STATUS "CFLAGS=${CMAKE_C_FLAGS} (synthetized, after feature checks)")
 message(STATUS "CXXFLAGS=${CMAKE_CXX_FLAGS} (synthetized, after feature checks)")
 
@@ -519,6 +487,8 @@ include_directories(${CADO_NFS_BINARY_DIR}/gf2x)
 
 add_custom_command(OUTPUT ${CADO_NFS_BINARY_DIR}/gf2x/Makefile
     COMMAND mkdir -p ${CADO_NFS_BINARY_DIR}/gf2x
+    COMMAND echo Regenerating gf2x build system
+    COMMAND cd ${CADO_NFS_SOURCE_DIR}/gf2x && autoreconf -fi
     COMMAND echo Configuring gf2x with options ${GF2X_CONFIGURE_FLAGS}
     COMMAND cd gf2x && "${CADO_NFS_SOURCE_DIR}/gf2x/configure" ${GF2X_CONFIGURE_FLAGS} < /dev/null
     COMMENT "Configuring gf2x"
@@ -543,30 +513,8 @@ add_subdirectory (linalg)
 add_subdirectory (filter)
 add_subdirectory (linalg/bwc)
 add_subdirectory (misc)
-add_subdirectory (scripts)
-add_subdirectory (tests EXCLUDE_FROM_ALL)
-
-add_custom_target(dist
-    COMMAND scripts/dist.sh ${package_basename}
-    WORKING_DIRECTORY ${CADO_NFS_SOURCE_DIR}
-)
-
-# The trailing / is very important here. Without it, we would create a
-# parameters/ directory in ${PREFIX}/share/cado-nfs-X.Y/
-install(DIRECTORY parameters/ DESTINATION ${DATASUFFIX})
-
-configure_file(cado-nfs.py cado-nfs.py ESCAPE_QUOTES @ONLY)
-
 file(GENERATE OUTPUT source-location.txt CONTENT "${CADO_NFS_SOURCE_DIR}")
-configure_file(cado-nfs-client.py cado-nfs-client.py ESCAPE_QUOTES @ONLY)
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/cado-nfs.py DESTINATION ${BINSUFFIX})
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/cado-nfs-client.py DESTINATION ${BINSUFFIX})
 
-
-message(STATUS "Main scripts will go to ${CMAKE_INSTALL_PREFIX}/${BINSUFFIX}")
 message(STATUS "Libraries and binaries will go to ${CMAKE_INSTALL_PREFIX}/${LIBSUFFIX}")
-message(STATUS "Data will go to ${CMAKE_INSTALL_PREFIX}/${DATASUFFIX}")
 
-IF (DEFINED ENV{CMAKE_DUMP_VARIABLES})
-  include(config/variables.cmake)
-ENDIF()
+

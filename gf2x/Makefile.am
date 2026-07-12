@@ -88,12 +88,9 @@ nobase_nodist_include_HEADERS=	\
 
 libgf2x_la_LDFLAGS=-version-info @gf2x_lib_version@ -no-undefined
 
-check-local: all
-	:
+SUBDIRS=lowlevel . fft
 
-SUBDIRS=lowlevel src . fft tests
-
-DIST_SUBDIRS=lowlevel src . fft tests
+DIST_SUBDIRS=lowlevel . fft
 
 DISTCLEANFILES=gf2x/gf2x-thresholds.h	\
 	       gf2x/gf2x_mul1.h		\
@@ -135,17 +132,6 @@ dist-LGPL: distdir
 	tardir=$(distdir)-LGPL && $(am__tar) | GZIP=$(GZIP_ENV) gzip -c >$(distdir)-LGPL.tar.gz
 	mv $(distdir)-LGPL/ $(distdir)/
 	$(am__post_remove_distdir)
-
-tune-progs: all
-	cd src; $(MAKE) $@
-
-if HAVE_NONCONSTANT_CLOCK
-tune-lowlevel tune-toom tune-fft: tune-progs
-	cd src; $(MAKE) $@
-else
-tune-lowlevel tune-toom tune-fft:
-	@echo "Tuning cannot run since clock() apparently returns constant values"
-endif
 
 distclean-local:
 	-find already_tuned/tuned -maxdepth 1 -name "gf2x*" | xargs -r rm -f

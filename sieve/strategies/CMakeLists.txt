@@ -12,8 +12,6 @@ set (LIB_EXEC facul utils)
 add_executable(gfm gfm_exec.cpp generate_factoring_method.cpp ${SRC_UTILS})
 target_link_libraries(gfm ${LIB_EXEC})
 
-add_executable(benchfm benchfm_exec.cpp generate_factoring_method.cpp ${SRC_UTILS})
-target_link_libraries(benchfm ${LIB_EXEC})
 
 add_executable(gst 
   gst_exec.cpp

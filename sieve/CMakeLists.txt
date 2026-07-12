@@ -181,9 +181,6 @@ add_executable(dupsup dupsup.cpp
     )
 target_link_libraries(dupsup facul utils)
 
-add_executable(fake_rels EXCLUDE_FROM_ALL fake_rels.cpp)
-target_link_libraries(fake_rels utils_with_io)
-
 install(TARGETS makefb las las_descent freerel RUNTIME DESTINATION ${LIBSUFFIX}/sieve) 
 
 include(CMakeLists-nodist.txt OPTIONAL)

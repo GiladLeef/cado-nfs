@@ -53,7 +53,7 @@ AC_FUNC_ALLOCA
 # 4:0:0 gf2x-1.4 branch -- fft interface now merged in
 AC_SUBST([gf2x_lib_version], [4:0:0])
 
-AM_INIT_AUTOMAKE([1.13])
+AM_INIT_AUTOMAKE([1.13 foreign])
 
 # disable for releases: AM_MAINTAINER_MODE([disable])
 AM_MAINTAINER_MODE([disable])
@@ -259,8 +259,8 @@ fi
 
 AC_CONFIG_HEADERS([gf2x/gf2x-config.h gf2x/gf2x-config-export.h gf2x.h])
 
-AC_CONFIG_FILES([version.sh Makefile tests/Makefile lowlevel/Makefile
-                 src/Makefile fft/Makefile   gf2x.h.in gf2x.pc])
+AC_CONFIG_FILES([version.sh Makefile lowlevel/Makefile
+                 fft/Makefile   gf2x.h.in gf2x.pc])
 
 AC_OUTPUT
 
